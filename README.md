@@ -47,7 +47,7 @@ Download the archive for your OS and architecture, then extract the `alloy-host`
 
 Use the **latest** release for stable “always current” URLs:
 
-**Linux (amd64)**
+#### **Linux (amd64)**
 
 ```bash
 wget https://github.com/alloy-it/alloy-host-releases/releases/download/latest/alloy-host_latest_linux_amd64.tar.gz
@@ -55,7 +55,7 @@ tar -xzf alloy-host_latest_linux_amd64.tar.gz
 sudo mv alloy-host /usr/local/bin/
 ```
 
-**Linux (arm64)**
+#### **Linux (arm64)**
 
 ```bash
 wget https://github.com/alloy-it/alloy-host-releases/releases/download/latest/alloy-host_latest_linux_arm64.tar.gz
@@ -63,7 +63,7 @@ tar -xzf alloy-host_latest_linux_arm64.tar.gz
 sudo mv alloy-host /usr/local/bin/
 ```
 
-**macOS (Intel)**
+#### **macOS (Intel)**
 
 ```bash
 curl -sSL -o alloy-host.tar.gz https://github.com/alloy-it/alloy-host-releases/releases/download/latest/alloy-host_latest_darwin_amd64.tar.gz
@@ -71,7 +71,7 @@ tar -xzf alloy-host.tar.gz
 sudo mv alloy-host /usr/local/bin/
 ```
 
-**macOS (Apple Silicon)**
+#### **macOS (Apple Silicon)**
 
 ```bash
 curl -sSL -o alloy-host.tar.gz https://github.com/alloy-it/alloy-host-releases/releases/download/latest/alloy-host_latest_darwin_arm64.tar.gz
@@ -79,7 +79,7 @@ tar -xzf alloy-host.tar.gz
 sudo mv alloy-host /usr/local/bin/
 ```
 
-**Windows (PowerShell)**
+#### **Windows (PowerShell)**
 
 Download the zip for your architecture from the [latest release](https://github.com/alloy-it/alloy-host-releases/releases/tag/latest), then extract and add the folder to your `PATH`, or run from that folder:
 
@@ -158,19 +158,19 @@ alloy-host check-health
 
 ## Commands overview
 
-| Command | Description |
-|--------|-------------|
-| `alloy-host init <name> --blueprint <blueprint>` | Create a new dev VM directory |
-| `alloy-host up` | Start and provision the VM (run from VM dir) |
-| `alloy-host provision` | Re-provision with current blueprints |
-| `alloy-host ssh` | Open SSH session to the VM |
-| `alloy-host stop` | Halt the VM |
-| `alloy-host destroy` | Remove VM, keep config and data |
-| `alloy-host list` | List registered VMs |
-| `alloy-host resolve` | Resolve toolchain refs and write lockfile |
-| `alloy-host validate` | Validate blueprint YAML |
-| `alloy-host check-health` | Check Vagrant and VirtualBox |
-| `alloy-host config show` | Show config (e.g. custom tool paths) |
+| Command                                          | Description                                  |
+| ------------------------------------------------ | -------------------------------------------- |
+| `alloy-host init <name> --blueprint <blueprint>` | Create a new dev VM directory                |
+| `alloy-host up`                                  | Start and provision the VM (run from VM dir) |
+| `alloy-host provision`                           | Re-provision with current blueprints         |
+| `alloy-host ssh`                                 | Open SSH session to the VM                   |
+| `alloy-host stop`                                | Halt the VM                                  |
+| `alloy-host destroy`                             | Remove VM, keep config and data              |
+| `alloy-host list`                                | List registered VMs                          |
+| `alloy-host resolve`                             | Resolve toolchain refs and write lockfile    |
+| `alloy-host validate`                            | Validate blueprint YAML                      |
+| `alloy-host check-health`                        | Check Vagrant and VirtualBox                 |
+| `alloy-host config show`                         | Show config (e.g. custom tool paths)         |
 
 ---
 
