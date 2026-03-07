@@ -51,7 +51,7 @@ You can have as many environments as you like — one per project, per board, or
 ```bash
 # Create two environments for different boards
 alloy-host init project-nrf91 --blueprint nordic/nrf91
-alloy-host init project-owa4x --blueprint owasys/owa4x
+alloy-host init project-stm32 --blueprint st/stm32-cube-gcc
 
 # See all your environments
 alloy-host list
@@ -60,8 +60,8 @@ alloy-host list
 alloy-host up project-nrf91
 alloy-host ssh project-nrf91
 
-alloy-host up project-owa4x
-alloy-host ssh project-owa4x
+alloy-host up project-stm32
+alloy-host ssh project-stm32
 ```
 
 Each environment is completely isolated — different tools, different home directories, no conflicts.
@@ -69,9 +69,9 @@ Each environment is completely isolated — different tools, different home dire
 `alloy-host list` shows all your registered environments with their status:
 
 ```TOML
-NAME             BLUEPRINT        BACKEND   STATUS
-project-nrf91    nordic/nrf91     vm        running
-project-owa4x    owasys/owa4x     vm        stopped
+NAME             BLUEPRINT           BACKEND   STATUS
+project-nrf91    nordic/nrf91        vm        running
+project-stm32    st/stm32-cube-gcc   vm        stopped
 ```
 
 ---

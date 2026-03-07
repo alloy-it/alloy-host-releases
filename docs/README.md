@@ -21,7 +21,7 @@ VirtualBox / WSL2 VM            your dev environment, ready to use
 
 **alloy-host** — runs on your machine. You install it once and use it to create and control environments.
 
-**Blueprint** — a recipe that describes a complete development environment for a specific hardware target (e.g. `nordic/nrf91`, `owasys/owa4x`). Blueprints are maintained by the Alloy team and published to a registry. You reference them by name — you never write or edit them.
+**Blueprint** — a recipe that describes a complete development environment for a specific hardware target (e.g. `nordic/nrf91`, `st/stm32-cube-gcc`). Blueprints are maintained by the Alloy team and published to a registry. You reference them by name — you never write or edit them.
 
 **alloy-provisioner** — the engine that reads the blueprint and installs everything (compilers, SDKs, tools, environment variables) inside the VM. It is downloaded and run automatically when you start a VM. You never touch it.
 

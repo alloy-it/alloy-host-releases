@@ -40,12 +40,23 @@ alloy-host ssh ...     →    Opens a shell inside the fully configured VM
 
 A blueprint is a named recipe for a specific hardware target. Your Alloy administrator or team will tell you which blueprint to use. Common examples:
 
-| Blueprint name | Target                        |
-| -------------- | ----------------------------- |
-| `nordic/nrf91` | Nordic nRF9160 (cellular IoT) |
-| `nordic/nrf52` | Nordic nRF52 series           |
-| `owasys/owa4x` | Owasys OWA4X                  |
-| `owasys/owa5x` | Owasys OWA5X                  |
+| Blueprint name                        | Target                               |
+| ------------------------------------- | ------------------------------------ |
+| `nordic/nrf91`                        | Nordic nRF9160 (cellular IoT)        |
+| `nordic/nrf52`                        | Nordic nRF52 series                  |
+| `nordic/nrf54`                        | Nordic nRF54 series                  |
+| `espressif/esp32-idf`                 | Espressif ESP32 (ESP-IDF)            |
+| `st/stm32-cube-gcc`                   | ST STM32 (ARM GCC + OpenOCD)         |
+| `st/stm32mp157-dk2`                   | ST STM32MP157-DK2 (embedded Linux)   |
+| `raspberry-pi/rp2040`                 | Raspberry Pi Pico / RP2040           |
+| `raspberry-pi/raspberry-pi-4-model-b` | Raspberry Pi 4 Model B               |
+| `raspberry-pi/raspberry-pi-5`         | Raspberry Pi 5                       |
+| `beagleboard/beaglebone-black`        | BeagleBone Black (AM335x)            |
+| `nxp/imx8mplus-evk`                   | NXP i.MX 8M Plus EVK (Yocto)         |
+| `nvidia/jetson-nano`                  | NVIDIA Jetson Nano                   |
+| `generic/yocto-image-builder`         | Generic Yocto/Kas image builder      |
+| `generic/buildroot-image-builder`     | Generic Buildroot image builder      |
+| `generic/zephyr`                      | Generic Zephyr RTOS (board-agnostic) |
 
 ---
 
