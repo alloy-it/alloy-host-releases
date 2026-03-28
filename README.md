@@ -1,7 +1,21 @@
 # alloy-host releases
 
 Pre-built **alloy-host** binaries for Linux, macOS, and Windows.  
-alloy-host is the host-side CLI for managing Alloy development environments (Vagrant/VirtualBox VMs or WSL2).
+alloy-host is the host-side CLI for managing Alloy development environments (Vagrant/VirtualBox VMs, WSL2, or Docker).
+
+---
+
+## Compatibility
+
+| Platform   | Architectures | Archive format |
+| ---------- | ------------- | -------------- |
+| **Linux**  | `amd64`, `arm64` | `.tar.gz`   |
+| **macOS**  | `amd64`, `arm64` | `.tar.gz`   |
+| **Windows**| `amd64`, `arm64` | `.zip`      |
+
+Static binaries (`CGO_ENABLED=0`). Versioned releases (e.g. `v0.3.0`) and a **`latest`** release with stable download URLs are published.
+
+**Bootstrap installers** live in [`scripts/`](scripts/); maintainer-facing notes and copy-paste blocks are in [`scripts/README.md`](scripts/README.md).
 
 ---
 
@@ -24,13 +38,15 @@ Download and install from the official sites: [Vagrant](https://developer.hashic
 **Windows:**  
 Download and install from the official sites: [Vagrant](https://developer.hashicorp.com/vagrant/install#windows), [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
 
-Check that both are available:
+> **Docker / WSL2:** Other backends are supported; see the full docs. VirtualBox + Vagrant are the default.
+
+Check that backend tools are available:
 
 ```bash
 alloy-host check-health
 ```
 
-If Vagrant or VirtualBox are installed in a custom location, set their paths:
+If Vagrant or VirtualBox are installed in a custom location:
 
 ```bash
 alloy-host config set vagrant-path /path/to/vagrant
@@ -41,68 +57,60 @@ alloy-host config set vbox-manage-path /path/to/VBoxManage
 
 ## Installation
 
-Download the archive for your OS and architecture, then extract the `alloy-host` binary (or `alloy-host.exe` on Windows) and put it in your `PATH`.
+### Bootstrap install (recommended)
 
-### Option A: Latest (recommended)
-
-Use the **latest** release for stable “always current” URLs:
-
-#### **Linux (amd64)**
+**Linux and macOS** — requires `curl` or `wget`, `tar`, and `sudo` (default install dir is `/usr/local/bin`):
 
 ```bash
-wget https://github.com/alloy-it/alloy-host-releases/releases/download/latest/alloy-host_latest_linux_amd64.tar.gz
-tar -xzf alloy-host_latest_linux_amd64.tar.gz
-sudo mv alloy-host /usr/local/bin/
+curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash
 ```
 
-#### **Linux (arm64)**
+**Pin a version:**
 
 ```bash
-wget https://github.com/alloy-it/alloy-host-releases/releases/download/latest/alloy-host_latest_linux_arm64.tar.gz
-tar -xzf alloy-host_latest_linux_arm64.tar.gz
-sudo mv alloy-host /usr/local/bin/
+curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash -s -- 0.3.0
 ```
 
-#### **macOS (Intel)**
+**Windows** — download [`scripts/install.ps1`](https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.ps1), then run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+By default the Windows script installs to `%LOCALAPPDATA%\alloy-host` and adds that folder to your **user** `PATH`. See [`scripts/README.md`](scripts/README.md) for `-InstallDir`, `-SkipPath`, and environment variables.
+
+**macOS (Homebrew)** — alternative if you use the Alloy tap:
 
 ```bash
-curl -sSL -o alloy-host.tar.gz https://github.com/alloy-it/alloy-host-releases/releases/download/latest/alloy-host_latest_darwin_amd64.tar.gz
-tar -xzf alloy-host.tar.gz
-sudo mv alloy-host /usr/local/bin/
+brew install alloy-it/tap/alloy-host
 ```
 
-#### **macOS (Apple Silicon)**
+### Manual download (alternative)
 
-```bash
-curl -sSL -o alloy-host.tar.gz https://github.com/alloy-it/alloy-host-releases/releases/download/latest/alloy-host_latest_darwin_arm64.tar.gz
-tar -xzf alloy-host.tar.gz
-sudo mv alloy-host /usr/local/bin/
-```
+Download the archive for your OS and architecture from the [**latest** release](https://github.com/alloy-it/alloy-host-releases/releases/tag/latest), extract `alloy-host` (or `alloy-host.exe` on Windows), and place it on your `PATH`.
 
-#### **Windows (PowerShell)**
+Examples (stable `latest` URLs):
 
-Download the zip for your architecture from the [latest release](https://github.com/alloy-it/alloy-host-releases/releases/tag/latest), then extract and add the folder to your `PATH`, or run from that folder:
+| OS | Command (conceptual) |
+| -- | -------------------- |
+| Linux amd64 | `alloy-host_latest_linux_amd64.tar.gz` |
+| Linux arm64 | `alloy-host_latest_linux_arm64.tar.gz` |
+| macOS Intel | `alloy-host_latest_darwin_amd64.tar.gz` |
+| macOS Apple Silicon | `alloy-host_latest_darwin_arm64.tar.gz` |
+| Windows | `alloy-host_latest_windows_amd64.zip` or `_arm64.zip` |
 
-- amd64: `alloy-host_latest_windows_amd64.zip`
-- arm64: `alloy-host_latest_windows_arm64.zip`
+Full shell examples are in [`docs/installation.md`](docs/installation.md).
 
-### Option B: Versioned
+**Versioned** assets use the tag and numeric version in the filename, for example:
 
-For a specific version, use the versioned release (e.g. `v0.1.0`). Replace `VERSION` with the tag (e.g. `0.1.0`):
-
-```bash
-# Example: Linux amd64, v0.1.0
-wget https://github.com/alloy-it/alloy-host-releases/releases/download/v0.1.0/alloy-host_0.1.0_linux_amd64.tar.gz
-tar -xzf alloy-host_0.1.0_linux_amd64.tar.gz
-sudo mv alloy-host /usr/local/bin/
-```
+`https://github.com/alloy-it/alloy-host-releases/releases/download/v0.3.0/alloy-host_0.3.0_linux_amd64.tar.gz`
 
 Pattern: `https://github.com/alloy-it/alloy-host-releases/releases/download/<tag>/alloy-host_<version>_<os>_<arch>.<ext>`
 
-- **tag**: e.g. `v0.1.0` or `latest`
-- **os**: `linux`, `darwin`, `windows`
-- **arch**: `amd64`, `arm64`
-- **ext**: `.tar.gz` (Linux/macOS) or `.zip` (Windows)
+- **tag:** `latest` or `v0.3.0`
+- **os:** `linux`, `darwin`, `windows`
+- **arch:** `amd64`, `arm64`
+- **ext:** `.tar.gz` (Linux/macOS) or `.zip` (Windows)
 
 ---
 
@@ -113,11 +121,13 @@ alloy-host --version
 alloy-host check-health
 ```
 
+`check-health` confirms that `alloy-host` can find Vagrant and VirtualBox (for the default backend) and prints their versions.
+
 ---
 
 ## Quick start
 
-1. **Initialize** a dev VM (replace `my-vm` and blueprint name as needed):
+1. **Initialize** a dev environment (replace `my-vm` and blueprint as needed):
 
    ```bash
    alloy-host init my-vm --blueprint nordic/nrf91
@@ -130,7 +140,7 @@ alloy-host check-health
    alloy-host resolve
    ```
 
-3. **Start** the VM:
+3. **Start** the environment:
 
    ```bash
    alloy-host up
@@ -160,13 +170,13 @@ alloy-host check-health
 
 | Command                                          | Description                                  |
 | ------------------------------------------------ | -------------------------------------------- |
-| `alloy-host init <name> --blueprint <blueprint>` | Create a new dev VM directory                |
-| `alloy-host up`                                  | Start and provision the VM (run from VM dir) |
+| `alloy-host init <name> --blueprint <blueprint>` | Create a new dev environment directory       |
+| `alloy-host up`                                  | Start and provision (run from env directory) |
 | `alloy-host provision`                           | Re-provision with current blueprints         |
-| `alloy-host ssh`                                 | Open SSH session to the VM                   |
-| `alloy-host stop`                                | Halt the VM                                  |
-| `alloy-host destroy`                             | Remove VM, keep config and data              |
-| `alloy-host list`                                | List registered VMs                          |
+| `alloy-host ssh`                                 | Open a shell inside the environment          |
+| `alloy-host stop`                                | Halt the environment                         |
+| `alloy-host destroy`                             | Remove VM; keep config and data              |
+| `alloy-host list`                                | List registered environments                 |
 | `alloy-host resolve`                             | Resolve toolchain refs and write lockfile    |
 | `alloy-host validate`                            | Validate blueprint YAML                      |
 | `alloy-host check-health`                        | Check Vagrant and VirtualBox                 |
@@ -180,4 +190,4 @@ Versioned releases include `checksums.txt` and CycloneDX SBOMs (`.sbom.json`) in
 
 ---
 
-This repo contains only release artifacts. For source and full documentation, see the **alloy-host** project.
+This repository contains release artifacts and installer scripts. For source and extended documentation, see the **alloy-host** project and [`docs/`](docs/).
