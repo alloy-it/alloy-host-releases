@@ -10,6 +10,8 @@
 #   -Version / ALLOY_HOST_VERSION   Exact version, e.g. "0.3.0" (optional; default = latest)
 #   -InstallDir                    Install directory (default: %LOCALAPPDATA%\alloy-host)
 #   -SkipPath                      Do not append InstallDir to the user PATH
+#   ALLOY_REQUIRE_CHECKSUM          Set to "1" to abort when checksums.txt is missing
+#   ALLOY_CHECKSUM_OVERRIDE         Test hook: force checksum verification to fail
 #
 # Linux and macOS: use scripts/install.sh instead.
 
@@ -33,6 +35,68 @@ function Die($msg) {
     exit 1
 }
 
+function Resolve-NewestSemverVersion {
+    $api = "https://api.github.com/repos/$Repo/releases?per_page=30"
+    try {
+        $releases = Invoke-RestMethod -Uri $api -Headers @{ Accept = "application/vnd.github.v3+json" } -UseBasicParsing
+    } catch {
+        return $null
+    }
+    $versions = @()
+    foreach ($r in $releases) {
+        if ($r.draft -or $r.prerelease) { continue }
+        $t = [string]$r.tag_name
+        if ([string]::IsNullOrWhiteSpace($t)) { continue }
+        $t = $t.Trim()
+        if ($t -eq "latest") { continue }
+        if ($t -match '^v?(\d+)\.(\d+)\.(\d+)$') {
+            $versions += $t.TrimStart("v")
+        }
+    }
+    if ($versions.Count -eq 0) { return $null }
+    return ($versions | Sort-Object { [version]$_ })[-1]
+}
+
+function Verify-ArtifactChecksum($filePath, $fileName, $baseUrl) {
+    $override = $env:ALLOY_CHECKSUM_OVERRIDE
+    if (-not [string]::IsNullOrWhiteSpace($override)) {
+        $actual = (Get-FileHash -Path $filePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actual -ne $override.Trim().ToLowerInvariant()) {
+            Remove-Item -LiteralPath $filePath -Force
+            Die "Checksum verification failed for $fileName."
+        }
+        Write-Ok "Checksum verified for $fileName"
+        return
+    }
+
+    $checksumsUrl = "$baseUrl/checksums.txt"
+    $checksumsPath = Join-Path (Split-Path -Parent $filePath) "checksums.txt"
+    try {
+        Invoke-WebRequest -Uri $checksumsUrl -OutFile $checksumsPath -UseBasicParsing
+    } catch {
+        if ($env:ALLOY_REQUIRE_CHECKSUM -eq "1") {
+            Remove-Item -LiteralPath $filePath -Force
+            Die "checksums.txt not found at $checksumsUrl (ALLOY_REQUIRE_CHECKSUM=1)."
+        }
+        Write-Warn "checksums.txt not found for this release — skipping verification."
+        return
+    }
+
+    $line = Get-Content -LiteralPath $checksumsPath | Where-Object { $_ -like "*$fileName*" } | Select-Object -First 1
+    if (-not $line) {
+        Remove-Item -LiteralPath $filePath -Force
+        Die "checksums.txt has no entry for $fileName."
+    }
+
+    $expected = ($line -split '\s+', 2)[0].ToLowerInvariant()
+    $actual = (Get-FileHash -Path $filePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actual -ne $expected) {
+        Remove-Item -LiteralPath $filePath -Force
+        Die "Checksum verification failed for $fileName."
+    }
+    Write-Ok "Checksum verified for $fileName"
+}
+
 # Architecture: amd64 vs arm64 (Windows 11 ARM)
 $procArch = $env:PROCESSOR_ARCHITECTURE
 if ($procArch -eq "ARM64") {
@@ -48,6 +112,26 @@ if ([string]::IsNullOrWhiteSpace($InstallDir)) {
 }
 
 $verTrim = if ($Version) { $Version.Trim().TrimStart("v") } else { "" }
+$versionSource = ""
+$useFloatingLatest = $false
+
+if ($PSBoundParameters.ContainsKey("Version") -and $verTrim) {
+    $versionSource = "-Version parameter"
+} elseif (-not [string]::IsNullOrWhiteSpace($env:ALLOY_HOST_VERSION) -and $verTrim) {
+    $versionSource = "ALLOY_HOST_VERSION environment variable"
+}
+
+if (-not $verTrim) {
+    $resolved = Resolve-NewestSemverVersion
+    if ($resolved) {
+        $verTrim = $resolved
+        $versionSource = "newest release"
+    } else {
+        Write-Warn "Could not resolve the newest semver release from GitHub — falling back to floating 'latest' (checksum cannot be verified)."
+        $useFloatingLatest = $true
+        $versionSource = "floating latest (checksum not verified)"
+    }
+}
 
 if ($verTrim) {
     $Tag = "v$verTrim"
@@ -63,7 +147,13 @@ $Url = "$BaseUrl/$ZipFilename"
 Write-Host ""
 Write-Host "alloy-host installer" -ForegroundColor White
 Write-Host "  Binary : $BinaryName"
-Write-Host "  Version: $(if ($verTrim) { $verTrim } else { 'latest' })"
+if ($versionSource -eq "newest release" -and $verTrim) {
+    Write-Host "  Version: $verTrim (newest release)"
+} elseif ($verTrim) {
+    Write-Host "  Version: $verTrim (from $versionSource)"
+} else {
+    Write-Host "  Version: latest (from $versionSource)"
+}
 Write-Host "  Arch   : windows/$Arch"
 Write-Host "  Install: $InstallDir"
 Write-Host ""
@@ -85,6 +175,8 @@ try {
     } catch {
         Die "Failed to download ${Url}: $_"
     }
+
+    Verify-ArtifactChecksum -filePath $zipPath -fileName $ZipFilename -baseUrl $BaseUrl
 
     $extractDir = Join-Path $tmpRoot "extract"
     New-Item -ItemType Directory -Path $extractDir -Force | Out-Null

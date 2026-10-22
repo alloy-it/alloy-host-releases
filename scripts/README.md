@@ -47,14 +47,18 @@ curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/s
 Positional argument:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash -s -- 0.3.0
+curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash -s -- 2.1.0
 ```
 
-Environment variable (accepts `0.3.0` or `v0.3.0`):
+Environment variable (accepts `2.1.0` or `v2.1.0`). Put the variable **before** `bash`, not before `curl`:
 
 ```bash
-ALLOY_HOST_VERSION=0.3.0 curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | ALLOY_HOST_VERSION=2.1.0 bash
 ```
+
+The form `ALLOY_HOST_VERSION=2.1.0 curl … | bash` sets the variable only for `curl` and does **not** pin the version.
+
+The script verifies `checksums.txt` from the release. Set `ALLOY_REQUIRE_CHECKSUM=1` to treat a missing checksum file as fatal.
 
 Direct execution:
 
@@ -102,7 +106,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 **Pin a version (Unix):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash -s -- 0.3.0
+curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash -s -- 2.1.0
 ```
 
 **Verify:**
@@ -133,7 +137,8 @@ Manual downloads: [GitHub Releases](https://github.com/alloy-it/alloy-host-relea
 
 | Name | Applies to | Default | Purpose |
 |------|------------|---------|---------|
-| `ALLOY_HOST_VERSION` | sh, ps1 | *(latest)* | Exact version, e.g. `0.3.0` (sh: overridden by positional arg) |
+| `ALLOY_HOST_VERSION` | sh, ps1 | *(latest)* | Exact version, e.g. `2.1.0` (sh: overridden by positional arg) |
+| `ALLOY_REQUIRE_CHECKSUM` | sh only | unset | Set to `1` to abort when `checksums.txt` is missing |
 | `INSTALL_DIR` | sh only | `/usr/local/bin` | Install directory for `alloy-host` |
 | `NO_COLOR` | sh only | unset | Disable coloured output |
 | `-InstallDir` | ps1 only | `%LOCALAPPDATA%\alloy-host` | Install directory for `alloy-host.exe` |

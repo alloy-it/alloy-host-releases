@@ -13,7 +13,7 @@ alloy-host is the host-side CLI for managing Alloy development environments (Vag
 | **macOS**  | `amd64`, `arm64` | `.tar.gz`   |
 | **Windows**| `amd64`, `arm64` | `.zip`      |
 
-Static binaries (`CGO_ENABLED=0`). Versioned releases (e.g. `v0.3.0`) and a **`latest`** release with stable download URLs are published.
+Static binaries (`CGO_ENABLED=0`). Versioned releases (e.g. `v2.1.0`) and a **`latest`** release with stable download URLs are published.
 
 **Bootstrap installers** live in [`scripts/`](scripts/); maintainer-facing notes and copy-paste blocks are in [`scripts/README.md`](scripts/README.md).
 
@@ -59,16 +59,24 @@ alloy-host config set vbox-manage-path /path/to/VBoxManage
 
 ### Bootstrap install (recommended)
 
-**Linux and macOS** — requires `curl` or `wget`, `tar`, and `sudo` (default install dir is `/usr/local/bin`):
+**Linux and macOS** — requires `curl` or `wget` and `tar`. The script uses `sudo` only when the install directory is not writable (default `/usr/local/bin`):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash
 ```
 
+The script downloads `checksums.txt` from the release and verifies the archive SHA256 before installing. Set `ALLOY_REQUIRE_CHECKSUM=1` to abort when checksums are missing.
+
 **Pin a version:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash -s -- 0.3.0
+curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | bash -s -- 2.1.0
+```
+
+Or:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.sh | ALLOY_HOST_VERSION=2.1.0 bash
 ```
 
 **Windows** — download [`scripts/install.ps1`](https://raw.githubusercontent.com/alloy-it/alloy-host-releases/main/scripts/install.ps1), then run:
@@ -103,11 +111,11 @@ Full shell examples are in [`docs/installation.md`](docs/installation.md).
 
 **Versioned** assets use the tag and numeric version in the filename, for example:
 
-`https://github.com/alloy-it/alloy-host-releases/releases/download/v0.3.0/alloy-host_0.3.0_linux_amd64.tar.gz`
+`https://github.com/alloy-it/alloy-host-releases/releases/download/v2.1.0/alloy-host_2.1.0_linux_amd64.tar.gz`
 
 Pattern: `https://github.com/alloy-it/alloy-host-releases/releases/download/<tag>/alloy-host_<version>_<os>_<arch>.<ext>`
 
-- **tag:** `latest` or `v0.3.0`
+- **tag:** `latest` or `v2.1.0` (release tags include the `v` prefix)
 - **os:** `linux`, `darwin`, `windows`
 - **arch:** `amd64`, `arm64`
 - **ext:** `.tar.gz` (Linux/macOS) or `.zip` (Windows)
@@ -130,7 +138,7 @@ alloy-host check-health
 1. **Initialize** a dev environment (replace `my-vm` and blueprint as needed):
 
    ```bash
-   alloy-host init my-vm --blueprint nordic/nrf91
+   alloy-host init my-vm --blueprint community/nordic/nrf91:1.1.3
    ```
 
 2. **Resolve** toolchain refs if your blueprint uses them (optional):
@@ -158,10 +166,11 @@ alloy-host check-health
    alloy-host provision
    ```
 
-6. **Destroy** the VM (keeps config and data so you can run `up` again):
+6. **Destroy** the environment (backend-specific; see alloy-host docs). Example:
 
    ```bash
    alloy-host destroy
+   alloy-host destroy --all   # on docker: also remove the image; on wsl2: also delete wsl-disk/
    ```
 
 ---
@@ -175,12 +184,16 @@ alloy-host check-health
 | `alloy-host provision`                           | Re-provision with current blueprints         |
 | `alloy-host ssh`                                 | Open a shell inside the environment          |
 | `alloy-host stop`                                | Halt the environment                         |
-| `alloy-host destroy`                             | Remove VM; keep config and data              |
+| `alloy-host destroy`                             | Remove guest; keep env directory (and Docker image on docker); unregister from registry |
+| `alloy-host destroy --all`                       | On docker: also remove image; on wsl2: also delete `wsl-disk/`; always unregisters from registry |
 | `alloy-host list`                                | List registered environments                 |
 | `alloy-host resolve`                             | Resolve toolchain refs and write lockfile    |
 | `alloy-host validate`                            | Validate blueprint YAML                      |
-| `alloy-host check-health`                        | Check Vagrant and VirtualBox                 |
+| `alloy-host check-health`                        | Check Vagrant and VirtualBox (2.1.0; exits `0` when found) |
 | `alloy-host config show`                         | Show config (e.g. custom tool paths)         |
+
+> **Next release:** `alloy-host check-health --backend vm|wsl2|docker|all` checks backend dependencies and exits non-zero when a requested backend fails. Docker plain `destroy` keeps the image and registry entry; `destroy --all` removes container, image, and registry entry.
+<!-- dx-fixes: next-release; set the version number when releasing -->
 
 ---
 
