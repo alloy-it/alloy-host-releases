@@ -192,8 +192,7 @@ alloy-host check-health
 | `alloy-host check-health`                        | Check Vagrant and VirtualBox (2.1.0; exits `0` when found) |
 | `alloy-host config show`                         | Show config (e.g. custom tool paths)         |
 
-> **Next release:** `alloy-host check-health --backend vm|wsl2|docker|all` checks backend dependencies and exits non-zero when a requested backend fails. Docker plain `destroy` keeps the image and registry entry; `destroy --all` removes container, image, and registry entry.
-<!-- dx-fixes: next-release; set the version number when releasing -->
+> **New in Alloy Host 2.2.0 / alloy-provisioner 1.5.0:** `alloy-host check-health --backend vm|wsl2|docker|all` checks backend dependencies and exits non-zero when a requested backend fails. Docker plain `destroy` keeps the image and registry entry; `destroy --all` removes container, image, and registry entry.
 
 ---
 
